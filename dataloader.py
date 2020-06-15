@@ -1,0 +1,39 @@
+from PIL import Image
+from torch.utils.data import Dataset, DataLoader
+import os
+
+
+class ImageDataloader(Dataset):
+
+    def __init__(self, path_X, path_Y, transform_X=None, transform_Y=None):
+
+        self.path_X = path_X
+        self.path_Y = path_Y
+        self.transform_X = transform_X
+        self.transform_Y = transform_Y
+        self.img_names_X = os.listdir(path_X)
+        self.img_names_Y = os.listdir(path_Y)
+        self.X_num = len(self.img_names_X)
+        self.Y_num = len(self.img_names_Y)
+
+    def __len__(self):
+        return max(self.X_num, self.Y_num)
+
+    def __getitem__(self, index):
+
+        X_sample = Image.open(os.path.join(self.path_X, self.img_names_X[index % self.X_num])).convert('RGB')
+        Y_sample = Image.open(os.path.join(self.path_Y, self.img_names_Y[index % self.Y_num])).convert('RGB')
+
+        if self.transform_X is not None:
+            X_sample = self.transform_X(X_sample)
+
+        if self.transform_Y is not None:
+            Y_sample = self.transform_Y(Y_sample)
+
+        return {'X': X_sample, 'Y': Y_sample}
+
+
+def get_dataloader(path_X, path_Y, transform_X=None, transform_Y=None, batch_size=1, shuffle=True):
+
+    dataset = ImageDataloader(path_X, path_Y, transform_X, transform_Y)
+    return DataLoader(dataset, batch_size, shuffle)
