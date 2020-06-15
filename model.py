@@ -12,7 +12,23 @@ from PIL import Image
 
 
 def conv_block(in_ch, out_ch, activation='relu', *args, **kwargs):
+    """Creates a convolution block
 
+    Parameters
+    ----------
+    in_ch: int
+        Number of in channels
+    out_ch: int
+        Number of out channels
+    activation: str
+        'relu' or 'lrelu' activation function
+    args: other arguments
+    kwargs:
+
+    Returns
+    -------
+    torch.nn.Sequential class object
+    """
     activations = nn.ModuleDict([
         ['relu', nn.ReLU()],
         ['lrelu', nn.LeakyReLU(0.1)]
@@ -29,8 +45,18 @@ def conv_block(in_ch, out_ch, activation='relu', *args, **kwargs):
 
 
 class Generator(nn.Module):
-
+    """Class for generator in cycleGAN model
+    """
     def __init__(self, sizes, *args, **kwargs):
+        """Initializes Generator class object
+
+        Parameters
+        ----------
+        sizes: str[int]
+            Numbers of channels in conv_blocks for the model
+        args:
+        kwargs:
+        """
         super().__init__()
         self.sizes = sizes
 
@@ -71,8 +97,18 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-
+    """Class for discriminator in cycleGAN model
+    """
     def __init__(self, sizes, *args, **kwargs):
+        """Initializes Generator class object
+
+        Parameters
+        ----------
+        sizes: str[int]
+            Numbers of channels in conv_blocks for the model
+        args:
+        kwargs:
+        """
         super().__init__()
 
         self.sizes = sizes
@@ -96,6 +132,25 @@ class Discriminator(nn.Module):
 
 
 def update_discriminator(disc, optimizer, loss_fn, data_batch_reals, data_batch_fakes, device):
+    """Updates discriminator on batch data
+
+    Parameters
+    ----------
+    disc: Discriminator class objet
+        Discriminator to update
+    optimizer: torch.optim class object
+        Model optimizer
+    loss_fn: Loss to optimize
+    data_batch_reals: torch.tensor
+        Batch data of X images
+    data_batch_fakes: torch.tensor
+        Batch data of generated images
+    device: device
+
+    Returns
+    -------
+    Returns losses and accuracies on X and generated data
+    """
     optimizer.zero_grad()
 
     preds_reals = disc(data_batch_reals)
@@ -117,11 +172,35 @@ def update_discriminator(disc, optimizer, loss_fn, data_batch_reals, data_batch_
 
 
 def set_parameters_req_grad(model, req_grad=True):
+    """Sets parameters of model to required_grad = req_grad
+
+    Parameters
+    ----------
+    model: torch.nn.Module
+        Model to set parameters
+    req_grad: bool
+        If True sets parameters to required gradients
+    """
     for params in model.parameters():
         params.required_grad = req_grad
 
 
 def update_pool(pool, images, max_size=50):
+    """Updates pool of generated images
+
+    Parameters
+    ----------
+    pool: list
+        List of generated images
+    images: torch.tensor
+        Batch of generated images
+    max_size: int
+        Max size of pool
+
+    Returns
+    -------
+    torch.tensor of images
+    """
     buffer = []
 
     for img in images:
@@ -141,6 +220,24 @@ def update_pool(pool, images, max_size=50):
 
 
 def train_cycle_model(gen_class, dis_class, train_dataloader, weights, epoch_num, path_to_save, device):
+    """Trains the cycleGAN model
+
+    Parameters
+    ----------
+    gen_class: Generator class
+        Class of generator to use in model
+    dis_class: Discriminator class
+        Class of discriminator to use im nodel
+    train_dataloader: torch.utils.data.DataLoader class object
+        Images dataloder
+    weights: str[int]
+        Weights for loss function
+    epoch_num: int
+        Epoch number to train model
+    path_to_save: str
+        Path to save model and other things
+    device: device
+    """
     gens_loss_history = []
     dis_x_loss_history = []
     dis_y_loss_history = []
@@ -311,6 +408,16 @@ def train_cycle_model(gen_class, dis_class, train_dataloader, weights, epoch_num
 
 
 def test_generators(gen_class, path, dataloader, device):
+    """Shows generator's work on samples from dataloader
+
+    Parameters
+    ----------
+    gen_class: Generator class to use
+    path: str
+        Path to the model
+    dataloader: torch.utils.data.DataLoader class object
+    device: device
+    """
     checkpoint = torch.load(path)
 
     gen_x2y = gen_class(checkpoint['gen_x2y']['params']).to(device)
@@ -325,6 +432,19 @@ def test_generators(gen_class, path, dataloader, device):
 
 
 def test_one_sample(gen_class, generator_type, path, sample_path, device):
+    """Shows work of generator on one sample
+
+    Parameters
+    ----------
+    gen_class: Generator class
+    generator_type: str
+        'x2y' or 'y2x'
+    path: str
+        Path to the model
+    sample_path: str
+        Path to the sample
+    device: device
+    """
     transform = transforms.Compose([
         transforms.Resize((256, 256)),
         transforms.ToTensor(),
@@ -359,7 +479,14 @@ def test_one_sample(gen_class, generator_type, path, sample_path, device):
 
 
 def show_history(path, device):
+    """Shows the history of training of the model
 
+    Parameters
+    ----------
+    path: str
+        Path to the model
+    device: device
+    """
     checkpoint = torch.load(path, map_location=device)
     history = []
     for item in checkpoint['history'].items():

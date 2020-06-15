@@ -4,9 +4,21 @@ import os
 
 
 class ImageDataloader(Dataset):
-
+    """Dataset class of images for dataloader
+    """
     def __init__(self, path_X, path_Y, transform_X=None, transform_Y=None):
+        """Initializes ImageDataloader object
 
+        Parameters
+        ----------
+        path_X: str
+            Path to the X images
+        path_Y: str
+        transform_X: torchvision.transforms object
+            Transforms for X images
+        transform_Y: torchvision.transforms object
+            Transforms for Y images
+        """
         self.path_X = path_X
         self.path_Y = path_Y
         self.transform_X = transform_X
@@ -34,6 +46,25 @@ class ImageDataloader(Dataset):
 
 
 def get_dataloader(path_X, path_Y, transform_X=None, transform_Y=None, batch_size=1, shuffle=True):
+    """Creates dataloader for images
 
+    Parameters
+    ----------
+    path_X: str
+        Path to the X images
+    path_Y: str
+        Path to the Y images
+    transform_X: torchvision.transforms object
+        Transforms for X images
+    transform_Y: torchvision.transforms object
+        Transforms for Y images
+    batch_size: int
+        Size of batch
+    shuffle: bool
+
+    Returns
+    -------
+    torch.utils.data.DataLoader class object
+    """
     dataset = ImageDataloader(path_X, path_Y, transform_X, transform_Y)
     return DataLoader(dataset, batch_size, shuffle)

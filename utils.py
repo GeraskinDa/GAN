@@ -5,6 +5,19 @@ import random
 
 
 def back_normalize(images):
+    """Makes each image have values ranging from 0 to 1
+
+    Parameters
+    ----------
+    images: list
+        List of batches of torch.tensors with values in the range
+        of -1 to -1
+
+    Returns
+    -------
+    images: list
+        List of numpy arrays
+    """
 
     for i, img in enumerate(images):
         images[i] = np.transpose((img.cpu().numpy() + 1.) / 2., axes=(0, 2, 3, 1))
@@ -13,7 +26,24 @@ def back_normalize(images):
 
 
 def draw_images(gen_x2y, gen_y2x, samples_to_draw, device, epoch=None, time=None):
+    """Draws 2 images per domain, the outputs of generators
+    and recovered data each epoch
 
+    Parameters
+    ----------
+
+    gen_x2y: Generator class object
+        Generator from domain X to Y
+    gen_y2x: Generator class object
+        Generator from domain Y to X
+    samples_to_draw: dict
+        Samples (from train_dataloader) to draw
+    device: device
+    epoch: int
+        Current epoch number
+    time: int
+        Time for one epoch
+    """
     samples_X = samples_to_draw['X']
     samples_Y = samples_to_draw['Y']
 
@@ -56,7 +86,21 @@ def draw_images(gen_x2y, gen_y2x, samples_to_draw, device, epoch=None, time=None
 
 
 def make_ax(ax, history, label, xlabel, ylabel, title):
+    """Configures axis parameters
 
+    Parameters
+    ----------
+    ax: matplotlib.axes.Axes class object
+    history: list
+        History of training to draw
+    label: str
+    xlabel: str
+        Title for x axis
+    ylabel: str
+        Title for y axis
+    title: str
+
+    """
     ax.plot(history, label=label)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -65,7 +109,14 @@ def make_ax(ax, history, label, xlabel, ylabel, title):
 
 
 def draw_history(history):
+    """Draws history of training
 
+    Parameters
+    ----------
+    history: list
+        List containing loss and metric histories for each models
+
+    """
     [gens_loss_history, dis_x_loss_history, dis_y_loss_history,
      dis_x_reals_acc_history, dis_x_fakes_acc_history,
      dis_y_reals_acc_history, dis_y_fakes_acc_history] = history
@@ -87,7 +138,12 @@ def draw_history(history):
 
 
 def set_seed(seed=0):
+    """Sets seed of each random_fn to be equal to the seed
 
+    Parameters
+    ----------
+    seed: int
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
